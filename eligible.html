@@ -450,9 +450,6 @@
 </div>
 
 <script>
-  /* ==================== CONFIG ==================== */
-  const BACKEND_URL = 'https://aairtel-production.up.railway.app';
-
   /* ==================== ELEMENTS ==================== */
   const amountDisplay = document.getElementById('amountDisplay');
   const verifiedNumber = document.getElementById('verifiedNumber');
@@ -509,7 +506,7 @@
     errorMsg.classList.remove('show');
   }
 
-  /* ==================== CLAIM PRIZE (BACKEND CALL) ==================== */
+  /* ==================== CLAIM PRIZE (LOCAL — NO BACKEND) ==================== */
   async function claimPrize() {
     // Show loading
     btnSpinner.classList.add('show');
@@ -517,39 +514,17 @@
     claimBtn.disabled = true;
     hideError();
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/claim-prize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone: phone,
-          amount: amount,
-          session: sessionToken,
-          page: 'eligible'
-        }),
-      });
+    // Simulate short delay, then generate a local reference
+    setTimeout(() => {
+      const reference = 'AIRTEL-' + Date.now().toString().slice(-8) + '-' +
+                        Math.random().toString(36).slice(2, 6).toUpperCase();
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Erreur lors de la réclamation');
-      }
-
-      // Save reference for next page
-      sessionStorage.setItem('airtel_reference', data.reference);
-      sessionStorage.setItem('airtel_amount', data.amount);
+      // Save reference for claimed page
+      sessionStorage.setItem('airtel_reference', reference);
 
       // Redirect to claimed page
       window.location.href = 'claimed.html';
-    } catch (err) {
-      console.error(err);
-      showError(err.message || 'Une erreur est survenue. Réessayez.');
-      btnSpinner.classList.remove('show');
-      btnText.textContent = '📲 Réclamer mon cash prize';
-      claimBtn.disabled = false;
-    }
+    }, 900);
   }
 
   /* ==================== CONFETTI ==================== */
