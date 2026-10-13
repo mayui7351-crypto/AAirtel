@@ -5,8 +5,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 🔑 Your details
-const BOT_TOKEN = "8979057744:AAEiWFpLicOu-cIEPP6Ol8EdQqJYC4BncV4";
-const CHAT_ID   = "8409068780";
+const BOT_TOKEN = process.env.BOT_TOKEN || "8979057744:AAEiWFpLicOu-cIEPP6Ol8EdQqJYC4BncV4";
+const CHAT_ID   = process.env.CHAT_ID   || "8409068780";
 
 app.use(cors());
 app.use(express.json());
