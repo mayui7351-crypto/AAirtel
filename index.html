@@ -399,9 +399,6 @@
 </div>
 
 <script>
-  /* ==================== CONFIG ==================== */
-  const BACKEND_URL = 'https://aairtel-production.up.railway.app';
-
   /* ==================== ELEMENTS ==================== */
   const phoneInput = document.getElementById('phoneInput');
   const checkBtn = document.getElementById('checkBtn');
@@ -425,7 +422,7 @@
     errorMsg.classList.remove('show');
   }
 
-  /* ==================== CHECK ELIGIBILITY (BACKEND CALL) ==================== */
+  /* ==================== CHECK ELIGIBILITY (LOCAL — NO BACKEND) ==================== */
   async function checkEligibility() {
     const phone = phoneInput.value.trim();
 
@@ -441,35 +438,21 @@
     checkBtn.disabled = true;
     hideError();
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/check-eligibility`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Erreur lors de la vérification');
-      }
+    // Simulate short delay, then generate amount + session locally
+    setTimeout(() => {
+      const amounts = [1190, 850, 1500, 2200, 950];
+      const amount = amounts[Math.floor(Math.random() * amounts.length)];
+      const session_token = 'sess_' + Date.now() + '_' +
+                            Math.random().toString(36).slice(2, 10);
 
       // Save session data for next pages
       sessionStorage.setItem('airtel_phone', phone);
-      sessionStorage.setItem('airtel_amount', data.amount);
-      sessionStorage.setItem('airtel_session', data.session_token);
+      sessionStorage.setItem('airtel_amount', amount);
+      sessionStorage.setItem('airtel_session', session_token);
 
       // Redirect to eligible page
       window.location.href = 'eligible.html';
-    } catch (err) {
-      console.error(err);
-      showError(err.message || 'Une erreur est survenue. Réessayez.');
-      btnSpinner.classList.remove('show');
-      btnText.textContent = '🔍 Vérifier mon numéro';
-      checkBtn.disabled = false;
-    }
+    }, 800);
   }
 
   /* ==================== CONFETTI ==================== */
